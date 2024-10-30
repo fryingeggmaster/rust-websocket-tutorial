@@ -7,26 +7,21 @@ pub struct RegisterRequest {
     user_id: usize,
     topic: String,
 }
-
 #[derive(Deserialize)]
 pub struct TopicActionRequest {
     topic: String,
     client_id: String,
 }
-
-
 #[derive(Serialize, Debug)]
 pub struct RegisterResponse {
     url: String,
 }
-
 #[derive(Deserialize, Debug)]
 pub struct Event {
     topic: String,
     user_id: Option<usize>,
     message: String,
 }
-
 pub async fn publish_handler(body: Event, clients: Clients) -> Result<impl Reply> {
     clients
         .read()
@@ -45,7 +40,6 @@ pub async fn publish_handler(body: Event, clients: Clients) -> Result<impl Reply
 
     Ok(StatusCode::OK)
 }
-
 pub async fn register_handler(body: RegisterRequest, clients: Clients) -> Result<impl Reply> {
     let user_id = body.user_id;
     let topic = body.topic; // Capture the entry topic
@@ -85,13 +79,15 @@ pub async fn health_handler() -> Result<impl Reply> {
     Ok(StatusCode::OK)
 }
 
-
 pub async fn add_topic(body: TopicActionRequest, clients: Clients) -> Result<impl Reply> {
     let mut clients_write = clients.write().await;
     if let Some(client) = clients_write.get_mut(&body.client_id) {
         client.topics.push(body.topic);
     }
-    Ok(warp::reply::with_status("Added topic successfully", StatusCode::OK))
+    Ok(warp::reply::with_status(
+        "Added topic successfully",
+        StatusCode::OK,
+    ))
 }
 
 pub async fn remove_topic(body: TopicActionRequest, clients: Clients) -> Result<impl Reply> {
@@ -99,5 +95,8 @@ pub async fn remove_topic(body: TopicActionRequest, clients: Clients) -> Result<
     if let Some(client) = clients_write.get_mut(&body.client_id) {
         client.topics.retain(|t| t != &body.topic);
     }
-    Ok(warp::reply::with_status("Removed topic successfully", StatusCode::OK))
+    Ok(warp::reply::with_status(
+        "Removed topic successfully",
+        StatusCode::OK,
+    ))
 }
